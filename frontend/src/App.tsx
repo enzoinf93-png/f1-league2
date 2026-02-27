@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import AdminLeagues from './pages/admin/AdminLeagues';
 import AdminGrandsPrix from './pages/admin/AdminGrandsPrix';
 import AdminGpResults from './pages/admin/AdminGpResults';
+import AdminUserPredictions from './pages/admin/AdminUserPredictions';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/admin/leagues" element={<AdminRoute><AdminLeagues /></AdminRoute>} />
           <Route path="/admin/grands-prix" element={<AdminRoute><AdminGrandsPrix /></AdminRoute>} />
           <Route path="/admin/gp/:gpId/results" element={<AdminRoute><AdminGpResults /></AdminRoute>} />
+          <Route path="/admin/gp/:gpId/predictions" element={<AdminRoute><AdminUserPredictions /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

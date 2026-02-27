@@ -121,6 +121,11 @@ export default function AdminGrandsPrix() {
                     Inserisci risultati
                   </Link>
                 )}
+                <Link to={`/admin/gp/${gp.id}/predictions`}
+                  className="text-xs px-3 py-1.5 rounded no-underline font-semibold transition-colors"
+                  style={{ backgroundColor: '#1a1a2e', border: '1px solid #3a3a5e', color: '#a5b4fc' }}>
+                  Previsioni utenti
+                </Link>
               </div>
             ))}
           </div>
