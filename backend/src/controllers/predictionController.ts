@@ -9,6 +9,16 @@ function isDeadlinePassed(qualifyingStart: Date): boolean {
   return new Date() >= deadline;
 }
 
+async function getOpenFrom(year: number, round: number): Promise<Date | null> {
+  if (round <= 1) return null;
+  const prevGp = await prisma.grandPrix.findFirst({ where: { year, round: round - 1 } });
+  if (!prevGp) return null;
+  const openFrom = new Date(prevGp.raceStart);
+  openFrom.setDate(openFrom.getDate() + 1);
+  openFrom.setHours(0, 0, 0, 0);
+  return openFrom;
+}
+
 export async function getMyPredictions(req: AuthRequest, res: Response): Promise<void> {
   try {
     const predictions = await prisma.prediction.findMany({
@@ -37,6 +47,12 @@ export async function savePredictions(req: AuthRequest, res: Response): Promise<
 
     if (isDeadlinePassed(gp.qualifyingStart)) {
       res.status(403).json({ error: 'Deadline superata: previsioni chiuse 10 minuti prima delle qualifiche' });
+      return;
+    }
+
+    const openFrom = await getOpenFrom(gp.year, gp.round);
+    if (openFrom && new Date() < openFrom) {
+      res.status(403).json({ error: `Previsioni non ancora aperte. Apriranno il ${openFrom.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}` });
       return;
     }
 

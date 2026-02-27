@@ -9,6 +9,7 @@ interface GrandPrix {
   id: string; name: string; country: string;
   qualifyingStart: string; raceStart: string;
   isResultEntered: boolean; hasSprint: boolean;
+  openFrom: string | null;
 }
 interface Prediction { type: string; value: string; }
 
@@ -71,7 +72,10 @@ export default function GpPredict() {
 
   const deadline = gp ? new Date(new Date(gp.qualifyingStart).getTime() - 10 * 60 * 1000) : new Date(0);
   const countdown = useCountdown(deadline);
-  const isLocked = !countdown;
+  const isDeadlinePassed = !countdown;
+  const openFromDate = gp?.openFrom ? new Date(gp.openFrom) : null;
+  const isNotOpenYet = openFromDate ? new Date() < openFromDate : false;
+  const isLocked = isDeadlinePassed || isNotOpenYet;
 
   useEffect(() => {
     if (!gpId) return;
@@ -132,7 +136,11 @@ export default function GpPredict() {
             <span className="text-sm text-gray-400">
               Qualifiche: {new Date(gp.qualifyingStart).toLocaleString('it-IT')}
             </span>
-            {isLocked ? (
+            {isNotOpenYet && openFromDate ? (
+              <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#1a2a3b', color: '#60a5fa' }}>
+                Apre il {openFromDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
+              </span>
+            ) : isDeadlinePassed ? (
               <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#3b1a1a', color: '#f87171' }}>
                 PREVISIONI CHIUSE
               </span>
@@ -144,7 +152,12 @@ export default function GpPredict() {
           </div>
         </div>
 
-        {isLocked && (
+        {isNotOpenYet && openFromDate && (
+          <div className="mb-6 p-4 rounded-lg text-sm" style={{ backgroundColor: '#0f1f35', border: '1px solid #1d4ed8', color: '#60a5fa' }}>
+            Le previsioni per questo GP apriranno il <strong>{openFromDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong> (giorno dopo la fine della gara precedente).
+          </div>
+        )}
+        {isDeadlinePassed && !isNotOpenYet && (
           <div className="mb-6 p-4 rounded-lg text-sm" style={{ backgroundColor: '#3b1a1a', border: '1px solid #7f1d1d', color: '#f87171' }}>
             Le previsioni sono chiuse — le qualifiche iniziano tra meno di 10 minuti.
           </div>
@@ -260,7 +273,7 @@ export default function GpPredict() {
         <button onClick={handleSave} disabled={isLocked || saving}
           className="w-full mt-6 py-3 rounded font-bold text-white text-sm tracking-wider"
           style={{ backgroundColor: isLocked ? '#4b5563' : '#e10600', cursor: isLocked ? 'not-allowed' : 'pointer' }}>
-          {saving ? 'SALVATAGGIO...' : isLocked ? 'PREVISIONI CHIUSE' : 'SALVA PREVISIONI'}
+          {saving ? 'SALVATAGGIO...' : isDeadlinePassed ? 'PREVISIONI CHIUSE' : isNotOpenYet ? 'PREVISIONI NON ANCORA APERTE' : 'SALVA PREVISIONI'}
         </button>
       </div>
     </div>

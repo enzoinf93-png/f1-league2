@@ -16,7 +16,18 @@ export async function getGrandPrixById(req: Request, res: Response): Promise<voi
   try {
     const gp = await prisma.grandPrix.findUnique({ where: { id: req.params.id } });
     if (!gp) { res.status(404).json({ error: 'GP non trovato' }); return; }
-    res.json(gp);
+
+    let openFrom: Date | null = null;
+    if (gp.round > 1) {
+      const prevGp = await prisma.grandPrix.findFirst({ where: { year: gp.year, round: gp.round - 1 } });
+      if (prevGp) {
+        openFrom = new Date(prevGp.raceStart);
+        openFrom.setDate(openFrom.getDate() + 1);
+        openFrom.setHours(0, 0, 0, 0);
+      }
+    }
+
+    res.json({ ...gp, openFrom });
   } catch {
     res.status(500).json({ error: 'Errore del server' });
   }
