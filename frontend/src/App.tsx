@@ -8,6 +8,7 @@ import LeagueDetail from './pages/LeagueDetail';
 import JoinLeague from './pages/JoinLeague';
 import GpPredict from './pages/GpPredict';
 import GpResults from './pages/GpResults';
+import Profile from './pages/Profile';
 import AdminLeagues from './pages/admin/AdminLeagues';
 import AdminGrandsPrix from './pages/admin/AdminGrandsPrix';
 import AdminGpResults from './pages/admin/AdminGpResults';
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/leagues/:id" element={<ProtectedRoute><LeagueDetail /></ProtectedRoute>} />
           <Route path="/gp/:gpId/predict" element={<ProtectedRoute><GpPredict /></ProtectedRoute>} />
           <Route path="/gp/:gpId/results" element={<ProtectedRoute><GpResults /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/admin/leagues" element={<AdminRoute><AdminLeagues /></AdminRoute>} />
           <Route path="/admin/grands-prix" element={<AdminRoute><AdminGrandsPrix /></AdminRoute>} />
           <Route path="/admin/gp/:gpId/results" element={<AdminRoute><AdminGpResults /></AdminRoute>} />

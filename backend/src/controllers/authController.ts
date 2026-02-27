@@ -68,3 +68,49 @@ export async function me(req: Request & { user?: { id: string } }, res: Response
     res.status(500).json({ error: 'Errore del server' });
   }
 }
+
+export async function changePassword(req: Request & { user?: { id: string } }, res: Response): Promise<void> {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ error: 'Password attuale e nuova obbligatorie' });
+    return;
+  }
+  if (newPassword.length < 6) {
+    res.status(400).json({ error: 'La nuova password deve avere almeno 6 caratteri' });
+    return;
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+    if (!user || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      res.status(401).json({ error: 'Password attuale non corretta' });
+      return;
+    }
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: req.user!.id }, data: { passwordHash } });
+    res.json({ message: 'Password aggiornata con successo' });
+  } catch {
+    res.status(500).json({ error: 'Errore del server' });
+  }
+}
+
+export async function deleteAccount(req: Request & { user?: { id: string } }, res: Response): Promise<void> {
+  const { password } = req.body;
+  if (!password) {
+    res.status(400).json({ error: 'Password obbligatoria per eliminare l\'account' });
+    return;
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      res.status(401).json({ error: 'Password non corretta' });
+      return;
+    }
+    await prisma.prediction.deleteMany({ where: { userId: req.user!.id } });
+    await prisma.score.deleteMany({ where: { userId: req.user!.id } });
+    await prisma.leagueMember.deleteMany({ where: { userId: req.user!.id } });
+    await prisma.user.delete({ where: { id: req.user!.id } });
+    res.json({ message: 'Account eliminato' });
+  } catch {
+    res.status(500).json({ error: 'Errore del server' });
+  }
+}

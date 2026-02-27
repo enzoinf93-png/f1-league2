@@ -29,7 +29,9 @@ export default function Navbar() {
           Dashboard
         </Link>
         <span className="text-gray-500">|</span>
-        <span className="text-sm text-gray-400">{user?.username}</span>
+        <Link to="/profile" className="text-sm text-gray-400 hover:text-white no-underline transition-colors">
+          {user?.username}
+        </Link>
         <button
           onClick={handleLogout}
           className="text-sm px-3 py-1 rounded border border-gray-600 hover:border-red-600 text-gray-300 hover:text-white transition-all"
